@@ -1,0 +1,23 @@
+[Unit]
+Description=Tomcat {{ tomcat_version }} servlet container for Banner 9
+After=network.target
+
+[Service]
+Type=forking
+
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/etc/alternatives/jre"
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom -Djava.awt.headless=true"
+
+Environment="CATALINA_HOME=/u01/tomcat/latest"
+Environment="CATALINA_BASE=/u01/config/instance1"
+Environment="CATALINA_PID=/u01/tomcat/latest/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+ExecStart=/u01/tomcat/latest/bin/startup.sh
+ExecStop=/u01/tomcat/latest/bin/shutdown.sh
+
+[Install]
+WantedBy=multi-user.target

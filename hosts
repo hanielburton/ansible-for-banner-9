@@ -1,0 +1,10 @@
+[webhost_all]
+web ansible_host=127.0.0.1 ansible_port=2201 ansible_user='vagrant' ansible_ssh_private_key_file='/Users/hanielb/Documents/GitHub/ansible-banner-9-ol7/.vagrant/machines/web/virtualbox/private_key' ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+#localhost #129.146.191.69 ansible_user=opc ansible_ssh_private_key_file=privateKey
+
+
+[tomcat_all]
+tomcat ansible_host=127.0.0.1 ansible_port=2200 ansible_user='vagrant' ansible_ssh_private_key_file='/Users/hanielb/Documents/GitHub/ansible-banner-9-ol7/.vagrant/machines/tomcat/virtualbox/private_key' ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+#129.146.191.69 ansible_user=opc ansible_ssh_private_key_file=privateKey
+
+

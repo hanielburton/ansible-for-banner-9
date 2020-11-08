@@ -1,0 +1,27 @@
+<VirtualHost *:{{ vhost_port_http }}>
+        ServerName {{ vhost_server_name }}
+        ServerAlias {{ vhost_server_name }}
+
+        DocumentRoot "{{ vhost_doc_root }}"
+
+        <Location "/applicationNavigator/">
+          ProxyPass  "http://192.168.33.11:8080/applicationNavigator/"
+          ProxyPassReverse "http://192.168.33.11:8080/applicationNavigator/"
+
+          #ProxyPass "/" "http://localhost:8080/"
+          #ProxyPassReverse "/" "http://localhost:8080/"
+        </Location>
+
+        
+
+        ProxyPreserveHost On
+
+        <Location "/StudentRegistrationSsb">
+          ProxyPass "http://192.168.50.145:8445/StudentRegistrationSsb"
+          ProxyPassReverse "http://192.168.50.145:8445/StudentRegistrationSsb"
+
+          Order allow,deny
+          Allow from all
+        </Location>
+
+</VirtualHost>
