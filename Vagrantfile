@@ -13,27 +13,29 @@ Vagrant.configure("2") do |config|
     v.linked_clone = true
   end
 
-  # Define four VMs with static private IP addresses.
+  # Define 7 VMs with static private IP addresses.
   boxes = [
-    { :name => "reverse-proxy.test", :ip => "192.168.4.30" },
-    { :name => "appnav-01.test", :ip => "192.168.4.31" },
-    { :name => "student-ssb-01.test", :ip => "192.168.4.32" },
-    { :name => "registration-ssb-01.test", :ip => "192.168.4.34" },
-    { :name => "registration-ssb-02.test", :ip => "192.168.4.34" },
-    { :name => "control.test", :ip => "192.168.4.20" }
+    { :name => "apache-web-tier-dev-01", :ip => "192.168.4.10", :auto_start => true },
+    { :name => "appnav-dev-01", :ip => "192.168.4.11", :auto_start => true},
+    { :name => "appnav-dev-02", :ip => "192.168.4.12", :auto_start => false },
+    { :name => "ssb-registration-test-01", :ip => "192.168.4.14", :auto_start => true},
+    { :name => "ssb-registration-test-02", :ip => "192.168.4.15", :auto_start => false },
+    { :name => "ssb-student-test-01", :ip => "192.168.4.16", :auto_start => true},
+    { :name => "ansible-control", :ip => "192.168.4.20", :auto_start => true }
   ]
 
   # Provision each of the VMs.
   boxes.each do |opts|
-    config.vm.define opts[:name] do |config|
+    config.vm.define opts[:name], autostart: :auto_start do |config|
       config.vm.hostname = opts[:name]
       config.vm.network :private_network, ip: opts[:ip]
 
-      # Provision all the VMs using Ansible after last VM is up.
+      # Provision the control VM using Ansible after last VM is up.
       if opts[:name] == "control.test"
-        tomcat.vm.provision "shell", inline: <<-SHELL
+        config.vm.define primary: true
+        config.vm.provision "shell", inline: <<-SHELL
           sudo setenforce 0
-          sudo yum install -y ansible
+          sudo yum install -y ansible vim
         SHELL
         # config.vm.provision "ansible" do |ansible|
         #   ansible.playbook = "playbooks/main.yml"
@@ -43,43 +45,3 @@ Vagrant.configure("2") do |config|
       end
     end
   end
-
-end
-
-
-
-  # config.vm.define "tomcat" do |tomcat|
-  #   tomcat.vm.box = "geerlingguy/centos7"
-  #   tomcat.vm.hostname = "tomcat-vm"
-  #   tomcat.vm.network "forwarded_port", guest: 8080, host: 8081
-  #   tomcat.vm.network "private_network", ip: "192.168.33.11"
-
-  #   tomcat.vm.provision "shell", inline: <<-SHELL
-  #     sudo setenforce 0
-  #   SHELL
-
-  #   # Ansible stuff
-  #   tomcat.vm.provision :ansible do |ansible|
-  #     ansible.verbose = true
-  #     ansible.playbook = "tomcat.yml"
-  #   end
-  # end
-
-  # config.vm.define "web" do |web|
-  #   web.vm.box = "geerlingguy/centos7"
-  #   web.vm.hostname = "apache-vm"
-  #   web.vm.network "forwarded_port", guest: 80, host: 81
-  #   web.vm.network "private_network", ip: "192.168.33.12"
-  #   web.vm.network "public_network", bridge: "en0: Wi-Fi (Wireless)"
-
-  #   web.vm.provision "shell", inline: <<-SHELL
-  #     sudo setenforce 0
-  #   SHELL
-
-  #   # Ansible stuff
-  #   web.vm.provision :ansible do |ansible|
-  #     ansible.verbose = true
-  #     ansible.playbook = "apache.yml"
-  #   end
-
-  # end
