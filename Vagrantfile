@@ -18,15 +18,15 @@ Vagrant.configure("2") do |config|
     { :name => "apache-web-tier-dev-01", :ip => "192.168.4.10", :auto_start => true },
     { :name => "appnav-dev-01", :ip => "192.168.4.11", :auto_start => true},
     { :name => "appnav-dev-02", :ip => "192.168.4.12", :auto_start => false },
-    { :name => "ssb-registration-test-01", :ip => "192.168.4.14", :auto_start => true},
+    { :name => "ssb-registration-test-01", :ip => "192.168.4.14", :auto_start => false},
     { :name => "ssb-registration-test-02", :ip => "192.168.4.15", :auto_start => false },
-    { :name => "ssb-student-test-01", :ip => "192.168.4.16", :auto_start => true},
+    { :name => "ssb-student-test-01", :ip => "192.168.4.16", :auto_start => false},
     { :name => "ansible-control", :ip => "192.168.4.20", :auto_start => true }
   ]
 
   # Provision each of the VMs.
   boxes.each do |opts|
-    config.vm.define opts[:name], autostart: :auto_start do |config|
+    config.vm.define opts[:name], autostart: opts[:auto_start] do |config|
       config.vm.hostname = opts[:name]
       config.vm.network :private_network, ip: opts[:ip]
 
