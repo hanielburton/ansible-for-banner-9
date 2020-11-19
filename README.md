@@ -27,7 +27,7 @@ Then run the playbook:
 $ ansible-playbook -i hosts site.yml
 ~~~
 
-This will generate a site with the examples specified in `roles/assg/vars/main.yaml`.
+<!-- This will generate a site with the examples specified in `roles/assg/vars/main.yaml`.
 
 You might want to store site specific information along with blog posts in a separate YAML file. This way, you can manage multiple sites using the same playbook, but with different content.
 
@@ -98,9 +98,9 @@ Finally, I included a role I use to deploy apache on RPM based systems. If you a
 
 ~~~
 $ ansible-playbook -i hosts site.yml -e @mycheeseblog.yml --skip-tags apache
-~~~
+~~~ -->
 
 
 # fork it
-This spits out a minimalistic website that suits my tastes, but obviously everyone is different. Think of this playbook as a starting point, providing some of the plumbing to deploy static sites. Take it, mess with the templates and style sheets and all that and do your thing.
+This configures servers for a presentation on using Ansible to automate Tomcat deployments for Banner 9. The configurations used in these playbooks are for demonstation only and should NOT be used in production without modification. There several ways to accomplish the tasks listed here, but this is just one way to do it that works for this demo. 
 
