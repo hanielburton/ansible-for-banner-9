@@ -6,6 +6,7 @@
   become: yes
   gather_facts: no
   vars:
+    vhost_server_name: erp-dev.example.edu
     java_home: /etc/alternatives/jre
     tomcat_user: tomcat
     tomcat_group: tomcat

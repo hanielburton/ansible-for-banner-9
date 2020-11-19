@@ -22,13 +22,22 @@
     copy:
       src: "{{ item }}"
       dest: "{{ tomcat_catalina_home }}/libs"
+      force: no
     with_items:
       "{{ extra_libs_files }}"
+  
+  - name: Ensure {{ tomcat_catalina_base }}/bin exists
+    file:
+      path: "{{ tomcat_catalina_base }}/bin"
+      state: directory
+      mode: 0755
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
 
   - name: Configure "{{ tomcat_catalina_base }}/bin/setenv.sh" from template "{{ banner_setenv_template }}"
     template:
       src: "{{ banner_setenv_template }}"
       dest: "{{ tomcat_catalina_base }}/bin/setenv.sh"
       mode: 0755
-      user: "{{ tomcat_user }}"
+      owner: "{{ tomcat_user }}"
       group: "{{ tomcat_group }}"

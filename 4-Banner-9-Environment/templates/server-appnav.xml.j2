@@ -68,7 +68,9 @@
     -->
     <Connector port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               redirectPort="8443" />
+               redirectPort="8443" 
+               proxyName="{{ vhost_server_name }}"
+               proxyPort="{{ vhost_server_name }}"/>
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
@@ -129,7 +131,7 @@
     <!-- You should set jvmRoute to support load-balancing via AJP ie :
     <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
     -->
-    <Engine name="Catalina" defaultHost="localhost">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute={{ ansible_hostname}}>
 
       <!--For clustering, please take a look at documentation at:
           /docs/cluster-howto.html  (simple how to)
