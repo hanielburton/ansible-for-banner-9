@@ -1,8 +1,13 @@
-# assg: ansible-based static site generator
+# Ansible: Tomcat for Banner 9
 
-I've always been a huge fan of keeping things simple. Static site generators always seemed pretty neat to me. Why have all that overhead of a database or a complex framework just to share some ideas? I'm also a huge fan of [ansible](https://www.ansible.com/) which bakes in the [jinja2](http://jinja.pocoo.org/) template engine. 
+# Setup your environment
 
-Since I've already been using ansible to deploy infrastucture and code anyway, I reckoned it wouldn't be that tough to statically generate a website with it and skip the middle-man. This is the result.
+Install these tools:
+
+vagrant https://www.vagrantup.com/downloads
+virtualbox https://www.virtualbox.org
+
+
 
 
 # usage
