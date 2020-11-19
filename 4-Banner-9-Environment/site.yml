@@ -1,0 +1,6 @@
+---
+#Consolidates all playbooks used to setup the erp-dev.example.edu site
+
+- import_playbook: apache.yml
+- import_playbook: tomcat.yml
+- import_playbook: banner_setup.yml

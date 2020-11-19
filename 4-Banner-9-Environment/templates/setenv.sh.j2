@@ -1,0 +1,6 @@
+# setenv.sh
+# Note:  BannerAdmin Tomcat instances would contain an addtional parameter:  -Dlog4j.configuration=config.properties
+HEAPSIZE="-Xms1g -Xmx2g"
+AUTOCOMMIT="-Doracle.jdbc.autoCommitSpecCompliant=false"
+export CATALINA_OPTS="-server $HEAPSIZE $AUTOCOMMIT"
+export JRE_HOME=/etc/alternatives/jre

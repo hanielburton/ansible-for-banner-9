@@ -1,0 +1,199 @@
+---
+# Installs Apache Tomcat 8 on RHEL or OL
+# Source: https://oracle-base.com/articles/linux/apache-tomcat-8-installation-on-linux
+
+- hosts: tomcat
+  become: yes
+  gather_facts: no
+  vars:
+    java_home: /etc/alternatives/jre
+    tomcat_user: tomcat
+    tomcat_group: tomcat
+    tomcat_version: 8.5.58 #version of Tomcat to use
+    tomcat_extract_location: /u01/tomcat #location where we will extract binaries
+    tomcat_catalina_home: /u01/tomcat/latest #location of symlink to latest extracted Tomcat binaries
+    tomcat_catalina_base: /u01/config/dev #location of Tomcat instance config and webapps
+    tomcat_http_port: 8080
+    tomcat_server_xml: templates/server.xml.j2
+    tomcat_context_xml: templates/context.xml.j2
+
+
+  tasks:
+  - name: Ensure instance group "{{ tomcat_group }}" exists
+    group:
+      name: "{{ tomcat_group }}"
+      state: present
+
+  - name: Ensure instance user {{ tomcat_user }} exists
+    user:
+      name: "{{ tomcat_user }}"
+      state: present
+      group: "{{ tomcat_group }}"
+      createhome: no
+      system: yes
+
+  # - name: Create base /u01 directory
+  #   file:
+  #     path: /u01
+  #     state: directory
+  #     mode: 0755
+  #     owner: "{{ tomcat_user }}"
+  #     group: "{{ tomcat_group }}"
+
+  - name: Create {{ tomcat_extract_location }} directory
+    file:
+      path: "{{ tomcat_extract_location }}"
+      state: directory
+      mode: 0755
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+
+  - name: Install prerequisite software
+    yum:
+      name: ['java-1.8.0-openjdk', 'vim']
+      state: present
+
+  - name: Copy apache-tomcat-{{ tomcat_version }}.tar.gz Archive to /tmp/ on host server
+    copy:
+      src: apache-tomcat-{{ tomcat_version }}.tar.gz
+      dest: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+
+  # - name: Download Tomcat source
+  #   get_url:
+  #     url: https://archive.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz
+  #     dest: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+  #     mode: "440"
+
+  - name: install tomcat instance
+    unarchive:
+      src: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+      dest: /u01/tomcat
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      remote_src: yes
+      extra_opts: ['--show-stored-names']
+      mode: "0755"
+
+  - name: Create a symbolic link
+    file:
+      src: /u01/tomcat/apache-tomcat-{{ tomcat_version }}
+      dest: "{{ tomcat_catalina_home }}"
+      mode: 0755
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      state: link
+
+  - name: Create "{{ tomcat_catalina_base }}" directory
+    file:
+      path: "{{ tomcat_catalina_base }}"
+      state: directory
+      mode: 0755
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+
+  - name: Seed conf from {{ tomcat_catalina_home }}/conf
+    copy:
+      src: "{{ tomcat_catalina_home }}/conf"
+      dest: "{{ tomcat_catalina_base }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      mode: preserve
+      remote_src: yes
+      force: no
+      follow: yes
+
+  - name: Seed logs from {{ tomcat_catalina_home }}/logs
+    copy:
+      src: "{{ tomcat_catalina_home }}/logs"
+      dest: "{{ tomcat_catalina_base }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      remote_src: yes
+      follow: yes
+
+  - name: Seed temp from {{ tomcat_catalina_home }}/temp
+    copy:
+      src: "{{ tomcat_catalina_home }}/temp"
+      dest: "{{ tomcat_catalina_base }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      remote_src: yes
+      force: yes
+      follow: yes
+
+  - name: Seed webapps from "{{ tomcat_catalina_home }}/webapps"
+    copy:
+      src: "{{ tomcat_catalina_home }}/webapps"
+      dest: "{{ tomcat_catalina_base }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      remote_src: yes
+      force: no
+      follow: yes
+
+  - name: Seed work from {{ tomcat_catalina_home }}/work
+    copy:
+      src: "{{ tomcat_catalina_home }}/work"
+      dest: "{{ tomcat_catalina_base }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      remote_src: yes
+      force: yes
+      follow: yes
+
+  - name: "Configure server.xml from template {{ tomcat_server_xml }}"
+    no_log: false
+    tags:
+    - "configuration"
+    template:
+      src: "{{ tomcat_server_xml }}"
+      dest: "{{ tomcat_catalina_base }}/conf/context.xml"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+
+
+  - name: "Configure context.xml from template {{ tomcat_context_xml }}"
+    no_log: false
+    tags:
+    - "configuration"
+    template:
+      src: "{{ tomcat_context_xml }}"
+      dest: "{{ tomcat_catalina_base }}/conf/context.xml"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+
+  - name: Configure Tomcat Manager Users
+    no_log: false
+    template:
+      src: templates/tomcat-users.xml
+      dest: "{{ tomcat_catalina_base }}/conf/tomcat-users.xml"
+    notify: restart tomcat
+
+  - name: Configure Tomcat service
+    no_log: false
+    template:
+      src: templates/tomcat.service
+      dest: /etc/systemd/system/tomcat.service
+    notify: restart tomcat
+
+  # - name: insert firewalld rule for tomcat http port 8080
+  #   tags:
+  #   - "configuration"  
+  #   firewalld: 
+  #     port: 8080/tcp 
+  #     permanent: yes 
+  #     state: enabled 
+  #     immediate: yes
+
+  - name: Ensure Tomcat is running
+    systemd:
+      name: tomcat
+      state: started
+      daemon_reload: yes
+
+  handlers:
+    - name: restart tomcat
+      systemd:
+        name: tomcat
+        state: restarted
+        daemon_reload: yes

@@ -1,0 +1,18 @@
+---
+# Ansible Basics
+- hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+  - name: Run mkdir to create /new_dir directory
+    command: mkdir /new_dir
+
+  - name: Create new directory /new_dir2
+    file:
+      path: /new_dir
+      state: directory
+      mode: 0755
+    become: yes
+  
+  
